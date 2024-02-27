@@ -7,7 +7,8 @@ import { NavLink } from "react-router-dom";
 const Header = () => {
   return (
     <>
-      <div className="flex w-11/12 justify-between items-center p-5 fixed">
+      <div className="w-full py-5 px-14 fixed z-50">
+        <div className="flex justify-between items-center p-3 backdrop-blur-xs rounded-2xl">
         <NavLink to="/">
         <div className="relative cursor-pointer">
           <img className="h-9" src={ZestLogo} alt="" />
@@ -19,6 +20,7 @@ const Header = () => {
           <Button className="h-11 w-28 text-lg">Register</Button>
             </NavLink>
           <ModeToggle/>
+        </div>
         </div>
       </div>
     </>
