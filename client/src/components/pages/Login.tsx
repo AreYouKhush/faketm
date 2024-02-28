@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,9 +16,14 @@ import { Input } from "@/components/ui/input";
 import bgImg from "../../assets/markus-winkler-ahjzVINkuCs-unsplash-Photoroom.png-Photoroom.png";
 import "../../App.css";
 import { useNavigate } from "react-router";
+import { useRecoilState } from "recoil";
+import { loginState } from "@/state/atoms/LoginState";
+import { url } from "@/helpers/Url";
+import axios from "axios";
+import { useCookies } from "react-cookie";
 
 const registerSchema = z.object({
-  username: z.string().max(16).trim(),
+  username: z.string().trim(),
   password: z.string().min(6),
 });
 
@@ -31,10 +36,21 @@ const Register = () => {
     },
   });
 
+  const [login, setLogin] = useRecoilState(loginState);
+  const [logError, setLogError] = useState("");
+  const [cookies, setCookie, removeCookie] = useCookies(['token']);
+
   const navigate = useNavigate();
 
-  const onSubmit = (values: z.infer<typeof registerSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof registerSchema>) => {
+    const response = await axios.post(url + "user/login", values);
+    if(response.data.err){
+
+    }else{
+      setLogin(true);
+      setCookie('token', response.data.token);
+      navigate("/");
+    }
   };
 
   return (

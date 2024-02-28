@@ -6,15 +6,17 @@ import { loginState } from "./state/atoms/LoginState";
 import axios from "axios";
 import { url } from "./helpers/Url";
 import { useEffect } from "react";
+import { useCookies } from "react-cookie";
 
 function App() {
 
   const [login, setLogin] = useRecoilState(loginState);
+  const [cookies, setCookie, removeCookie] = useCookies(['token']);
 
   const checkLoginStatus = async () => {
-    const stat = await axios.post(url + "user/verify", {
+    const stat = await axios.get(url + "user/verify", {
       headers: {
-        token: ""
+        token: cookies.token
       }
     })
     if(stat.data.msg == "Success!"){

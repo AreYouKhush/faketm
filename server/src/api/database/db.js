@@ -3,7 +3,6 @@ require("dotenv").config();
 
 mongoose.connect(process.env.DB_URI);
 
-// Create a Schema for Users
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -13,6 +12,14 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     minLength: 3,
     maxLength: 30,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+    minLength: 3,
   },
   password: {
     type: String,
@@ -33,7 +40,6 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// Create a model from the schema
 const User = mongoose.model("User", userSchema);
 
 module.exports = {

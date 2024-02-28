@@ -8,16 +8,21 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
+import { RecoilRoot } from "recoil";
 import Home from "./components/pages/Home.tsx";
 import Register from "./components/pages/Register.tsx";
 import Login from "./components/pages/Login.tsx";
-import { RecoilRoot } from "recoil";
+import { Dashboard } from "./components/pages/Dashboard.tsx";
+import Profile from "./components/pages/Profile.tsx";
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route index element={<Home />}></Route>
       <Route path="login" element={<Login />}></Route>
       <Route path="register" element={<Register />}></Route>
+      <Route path="dashboard" element={<Dashboard></Dashboard>}></Route>
+      <Route path="profile" element={<Profile></Profile>}></Route>
     </Route>
   )
 );

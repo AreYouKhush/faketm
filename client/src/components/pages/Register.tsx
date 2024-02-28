@@ -18,6 +18,9 @@ import "../../App.css";
 import { useNavigate } from "react-router";
 import axios from "axios";
 import { url } from "@/helpers/Url";
+import { useCookies } from "react-cookie";
+import { useRecoilState } from "recoil";
+import { loginState } from "@/state/atoms/LoginState";
 
 const registerSchema = z.object({
   username: z.string().max(16).trim(),
@@ -42,6 +45,8 @@ const Register = () => {
   const navigate = useNavigate();
 
   const [regError, setRegError] = useState("");
+  const [cookies, setCookie, removeCookie] = useCookies(['token']);
+  const [login, setLogin] = useRecoilState(loginState);
 
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
     const response = await axios.post(url + "user/register", values);
@@ -52,8 +57,10 @@ const Register = () => {
       }, 2000);
     } else {
       setRegError("success");
+      setCookie('token', response.data.token);
+      setLogin(true);
       setTimeout(() => {
-        navigate("/login");
+        navigate("/");
         setRegError("");
       }, 2000);
     }
