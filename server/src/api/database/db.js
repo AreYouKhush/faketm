@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema({
     trim: true,
     maxLength: 50,
   },
+  avatar: {
+    type: String,
+    required: false,
+  }
 });
 
 const User = mongoose.model("User", userSchema);

@@ -12,11 +12,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { profileState } from "@/state/atoms/Profile";
 
 const Header = () => {
   const [login] = useRecoilState(loginState);
   const [cookies, setCookie, removeCookie] = useCookies(["token"]);
+  const [userInfo] = useRecoilState(profileState);
+
   const logout = () => {
+    localStorage.clear();
     removeCookie("token");
   };
   return (
@@ -24,23 +28,30 @@ const Header = () => {
       <div className="w-full py-5 px-14 fixed z-50">
         <div className="flex justify-between items-center p-3 backdrop-blur-xs rounded-2xl">
           <NavLink to="/">
-            <div className="relative cursor-pointer">
-              <img className="h-9" src={ZestLogo} alt="" />
-              <div className="text-4xl font-bold absolute -top-2 left-12">
-                zest
-              </div>
+            <div className="cursor-pointer relative">
+              <img className="h-10" src={ZestLogo} alt="" />
+              <div className="text-4xl font-bold absolute -right-20 -top-1">zest</div>
             </div>
           </NavLink>
           <div className="flex items-center justify-center gap-3">
             {login ? (
               <div className="cursor-pointer px-3">
                 <Popover>
-                  <PopoverTrigger>
-                    <Avatar>
-                      <AvatarImage src="https://github.com/shadcn.png" />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                  </PopoverTrigger>
+                  <div className="flex justify-center items-center gap-3">
+                    {login && (
+                      <>
+                        <div className="text-lg border-white font-semibold">
+                          {userInfo?.username}
+                        </div>
+                      </>
+                    )}
+                    <PopoverTrigger>
+                      <Avatar>
+                        <AvatarImage src={userInfo?.avatar} />
+                        <AvatarFallback>CN</AvatarFallback>
+                      </Avatar>
+                    </PopoverTrigger>
+                  </div>
                   <PopoverContent className="flex flex-col p-0">
                     <NavLink to="/profile">
                       <div className="cursor-pointer font-semibold select-none px-5 py-3 hover:bg-slate-100 dark:hover:bg-slate-900 duration-100 text-sm">

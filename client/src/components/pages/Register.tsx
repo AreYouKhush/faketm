@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +21,7 @@ import { url } from "@/helpers/Url";
 import { useCookies } from "react-cookie";
 import { useRecoilState } from "recoil";
 import { loginState } from "@/state/atoms/LoginState";
+import { profileState } from "@/state/atoms/Profile";
 
 const registerSchema = z.object({
   username: z.string().max(16).trim(),
@@ -45,8 +46,9 @@ const Register = () => {
   const navigate = useNavigate();
 
   const [regError, setRegError] = useState("");
-  const [cookies, setCookie, removeCookie] = useCookies(['token']);
+  const [cookies, setCookie, removeCookie] = useCookies(["token"]);
   const [login, setLogin] = useRecoilState(loginState);
+  const [userInfo, setUserInfo] = useRecoilState(profileState);
 
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
     const response = await axios.post(url + "user/register", values);
@@ -57,12 +59,13 @@ const Register = () => {
       }, 2000);
     } else {
       setRegError("success");
-      setCookie('token', response.data.token);
+      setCookie("token", response.data.token);
       setLogin(true);
       setTimeout(() => {
         navigate("/");
         setRegError("");
       }, 2000);
+      localStorage.setItem("userInfo", JSON.stringify(response.data.userInfo));
     }
   };
 

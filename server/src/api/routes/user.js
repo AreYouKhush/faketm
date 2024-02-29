@@ -21,7 +21,7 @@ router.post("/register", async (req, res) => {
     $or: [{ username: username }, { email: email }],
   });
   if (findUser) {
-    console.log(req.body)
+    console.log(req.body);
     res.json({ err: "User already Exists" });
   } else {
     const hashPassword = await bcrypt.hash(password, 10);
@@ -33,26 +33,55 @@ router.post("/register", async (req, res) => {
       email: email,
     });
     await newUser.save();
-    const token = jwt.sign({ username }, jwtSecret);
-    res.json({ msg: "User registered successfully!", token: token });
+    const token = jwt.sign({ email, username }, jwtSecret);
+    res.json({
+      msg: "User registered successfully!",
+      token: token,
+      userInfo: {
+        username: username,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+      },
+    });
   }
 });
 
 router.post("/login", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-  const findUser = await User.findOne({ $or: [{username: username}, {email: username}] });
+  const findUser = await User.findOne({
+    $or: [{ username: username }, { email: username }],
+  });
   if (!findUser) {
-    res.json({err: "User does not exist!"});
+    res.json({ err: "User does not exist!" });
   } else {
     const match = await bcrypt.compare(password, findUser.password);
     if (match) {
-      const token = jwt.sign({ username }, jwtSecret);
-      res.send({ token: token });
+      const token = jwt.sign({ email: findUser.email, username: findUser.username }, jwtSecret);
+      res.send({
+        token: token,
+        userInfo: {
+          username: findUser.username,
+          firstName: findUser.firstName,
+          lastName: findUser.lastName,
+          email: findUser.email,
+          avatar: findUser?.avatar
+        },
+      });
     } else {
       res.json({ err: "Wrong Password!" });
     }
   }
+});
+
+/* POST: http://localhost:3000/user/profile-img */
+router.post("/profile-img", Auth, async (req, res) => {
+  try {
+    const avatar = req.body.avatar;
+    const newImage = await User.findOneAndUpdate({ email: res.locals.data.email }, {$set: {avatar: avatar}});
+    res.json({newImage});
+  } catch (err) {}
 });
 
 const registerSchema = z.object({

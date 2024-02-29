@@ -7,35 +7,38 @@ import axios from "axios";
 import { url } from "./helpers/Url";
 import { useEffect } from "react";
 import { useCookies } from "react-cookie";
+import { profileState } from "./state/atoms/Profile";
 
 function App() {
-
   const [login, setLogin] = useRecoilState(loginState);
-  const [cookies, setCookie, removeCookie] = useCookies(['token']);
+  const [cookies, setCookie, removeCookie] = useCookies(["token"]);
+  const [userInfo, setUserInfo] = useRecoilState(profileState);
 
   const checkLoginStatus = async () => {
     const stat = await axios.get(url + "user/verify", {
       headers: {
-        token: cookies.token
-      }
-    })
-    if(stat.data.msg == "Success!"){
+        token: cookies.token,
+      },
+    });
+    if (stat.data.msg == "Success!") {
       setLogin(true);
-    }else{
+      const inf = JSON.parse(localStorage.getItem("userInfo") || "{}");
+      setUserInfo(inf);
+    } else {
       setLogin(false);
     }
-  }
+  };
 
   useEffect(() => {
     checkLoginStatus();
-  }, [])
+  }, []);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <Header></Header>
-        <main>
-          <Outlet></Outlet>
-        </main>
+      <Header></Header>
+      <main>
+        <Outlet></Outlet>
+      </main>
     </ThemeProvider>
   );
 }

@@ -21,6 +21,7 @@ import { loginState } from "@/state/atoms/LoginState";
 import { url } from "@/helpers/Url";
 import axios from "axios";
 import { useCookies } from "react-cookie";
+import { profileState } from "@/state/atoms/Profile";
 
 const registerSchema = z.object({
   username: z.string().trim(),
@@ -39,6 +40,7 @@ const Register = () => {
   const [login, setLogin] = useRecoilState(loginState);
   const [logError, setLogError] = useState("");
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
+  const [userInfo, setUserInfo] = useRecoilState(profileState);
 
   const navigate = useNavigate();
 
@@ -50,6 +52,8 @@ const Register = () => {
       setLogin(true);
       setCookie('token', response.data.token);
       navigate("/");
+      localStorage.setItem("userInfo", JSON.stringify(response.data.userInfo));
+      setUserInfo(response.data.userInfo);
     }
   };
 
