@@ -8,6 +8,7 @@ import { url } from "./helpers/Url";
 import { useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { profileState } from "./state/atoms/Profile";
+import { Toaster } from "./components/ui/toaster";
 
 function App() {
   const [login, setLogin] = useRecoilState(loginState);
@@ -39,6 +40,7 @@ function App() {
       <main>
         <Outlet></Outlet>
       </main>
+      <Toaster></Toaster>
     </ThemeProvider>
   );
 }

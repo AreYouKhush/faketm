@@ -12,14 +12,57 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
+import axios from "axios";
+import { useCookies } from "react-cookie";
+import { url } from "@/helpers/Url";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { useToast } from "../ui/use-toast";
+import { ProfileForm } from "./ProfileForm";
 
 const Profile = () => {
   const [userInfo, setUserInfo] = useRecoilState(profileState);
-  const [image, setImage] = useState('');
-  const handleImage = (e) => {
-    console.log(e.target.files)
-    setImage(e.target.files[0]);
-  }
+  const [cookies, setCookies, removeCookies] = useCookies(["token"]);
+  const [image, setImage] = useState<string>("");
+  const [waitingForImage, setWaitingForImage] = useState("not-waiting");
+  const { toast } = useToast();
+
+  const handleImage = async (e: any) => {
+    const file = e.target.files[0];
+    const base64: any = await convertToBase64(file);
+    setImage(base64);
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    if (image === "") {
+      return;
+    }
+    setWaitingForImage("waiting");
+    const response = await axios.post(
+      url + "user/profile-img",
+      {
+        avatar: image,
+      },
+      {
+        headers: {
+          token: cookies.token,
+        },
+      }
+    );
+    const local = JSON.parse(localStorage.getItem("userInfo") || "{}");
+    local.avatar = image;
+    localStorage.setItem("userInfo", JSON.stringify(local));
+    if (response.status == 200) {
+      setWaitingForImage("uploaded");
+      toast({
+        description: "Your profile has been updated.",
+      });
+      setTimeout(() => {
+        setWaitingForImage("not-waiting");
+      }, 2000);
+    }
+    setUserInfo(local);
+  };
 
   const convertToBase64 = (file: any) => {
     return new Promise((resolve, reject) => {
@@ -39,8 +82,8 @@ const Profile = () => {
       <div className="p-4 border-gray-400 border-[1px] rounded-xl">
         <div className="text-xl font-bold">Profile</div>
         <hr className="my-4" />
-        <div>
-          <div className="relative w-fit">
+        <div className="flex gap-20">
+          <div className="p-3 relative w-fit">
             <Popover>
               <PopoverTrigger>
                 <Avatar className="h-56 w-56">
@@ -57,15 +100,31 @@ const Profile = () => {
                     <DialogContent>
                       <DialogHeader>
                         <DialogTitle>Upload a photo</DialogTitle>
-                        <div className="py-4 flex justify-between">
+                        <form
+                          onSubmit={handleSubmit}
+                          className="py-4 flex justify-between"
+                        >
                           <input
-                          onChange={handleImage}
+                            onChange={handleImage}
                             type="file"
                             accept=".jpg, .png, .jpeg"
                             className="file:rounded-lg file:border-none file:p-3 file:font-semibold dark:file:bg-slate-900 dark:file:text-white"
                           />
-                          <Button onClick={handleImage}>Confirm</Button>
-                        </div>
+                          {waitingForImage !== "not-waiting" ? (
+                            waitingForImage === "uploaded" ? (
+                              <Button className="bg-green-900 text-white">
+                                Done
+                              </Button>
+                            ) : (
+                              <Button disabled>
+                                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                                Please wait
+                              </Button>
+                            )
+                          ) : (
+                            <Button type="submit">Confirm</Button>
+                          )}
+                        </form>
                         <DialogDescription>
                           You can change it anytime.
                         </DialogDescription>
@@ -79,6 +138,9 @@ const Profile = () => {
                 </div>
               </PopoverContent>
             </Popover>
+          </div>
+          <div>
+            <ProfileForm></ProfileForm>
           </div>
         </div>
       </div>
