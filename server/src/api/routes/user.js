@@ -84,11 +84,18 @@ router.post("/profile-img", Auth, async (req, res) => {
   } catch (err) {}
 });
 
+router.delete("/profile-img", Auth, async (req, res) => {
+  try{
+    await User.findOneAndUpdate({ email: res.locals.data.email }, { $set: {avatar : ""} })
+  }catch(err){}
+})
+
 const registerSchema = z.object({
   username: z.string().max(16).trim(),
   password: z.string().min(6),
   firstName: z.string().max(45).trim(),
   lastName: z.string().max(45).trim(),
+  avatar: z.string()
 });
 
 module.exports = router;
